@@ -1,12 +1,16 @@
 
+#include <chrono>
 #include <cxxopts.hpp>
+#include <exception>
 #include <fstream>
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include "drone.h"
+#include "world.h"
 
 const std::string kDefaultFile = "drones.json";
 
@@ -51,8 +55,14 @@ int main(int argc, char *argv[]) {
 		return EXIT_FAILURE;
 	}
 
-	for (Drone &drone : drones) {
-		std::cout << drone << '\n';
+	try {
+		World world(drones, {10, 10, 10});
+		world.Start();
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+		world.Stop();
+	} catch (std::exception &e) {
+		std::cout << "*** ERROR: " << e.what() << '\n';
+		return EXIT_FAILURE;
 	}
 
 	return EXIT_SUCCESS;

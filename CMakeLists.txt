@@ -9,10 +9,11 @@ if (NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE "Debug")
 endif ()
 # https://github.com/cpp-best-practices/cppbestpractices/blob/master/02-Use_the_Tools_Available.md#gcc--clang
+# without -Wpadded because padding here is not a problem
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -pedantic -Wshadow -Wnon-virtual-dtor \
 										-Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wconversion -Wsign-conversion \
 										-Wmisleading-indentation -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wnull-dereference \
-										-Wuseless-cast -Wdouble-promotion -Wformat=2 -Wpadded")
+										-Wuseless-cast -Wdouble-promotion -Wformat=2")
 
 # install deps via Conan
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR})
@@ -43,7 +44,10 @@ set(TEST_DIR test)
 add_library(drone STATIC ${LIB_DIR}/drone.h ${LIB_DIR}/drone.cc)
 target_include_directories(drone PUBLIC ${LIB_DIR})
 
+add_library(world STATIC ${LIB_DIR}/world.h ${LIB_DIR}/world.cc)
+target_include_directories(world PUBLIC ${LIB_DIR})
+
 # executables
 
 add_executable(drone-swarm-sim ${SRC_DIR}/drone-swarm-sim.cc)
-target_link_libraries(drone-swarm-sim drone CONAN_PKG::cxxopts CONAN_PKG::nlohmann_json)
+target_link_libraries(drone-swarm-sim drone world CONAN_PKG::cxxopts CONAN_PKG::nlohmann_json)

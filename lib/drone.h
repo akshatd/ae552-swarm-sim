@@ -4,6 +4,11 @@
 #include <iostream>
 #include <string>
 
+/*
+  This class contains the Drone class and its associated structs.
+  This encapsulates the drone's name, attitude and anything else it might do
+*/
+
 struct Point3d {
 		float x;
 		float y;
@@ -23,6 +28,10 @@ class Drone {
 	public:
 		Drone(std::string name, Attitude attitude);
 		~Drone();
+		void        setAttitude(Attitude attitude);
+		Point3d     getControlOut();
+		std::string getName() const;
+
 		friend std::ostream& operator<<(std::ostream& os, const Drone& drone);
 
 	private:
