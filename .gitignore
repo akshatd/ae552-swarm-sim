@@ -1,5 +1,61 @@
+########################
+# Local folders
+########################
+bin
+logs
+build
+
+########################
+# Vim swp files
+########################
+*.swp
+
+########################
+# Temporary .deb files #
+########################
+# *.deb
+
+########################
+# Temporary .csv files #
+########################
+*.csv
+
+########################
+# Temporary .bk files #
+########################
+*.bk
+
+####################
+# sshfs temp files #
+####################
+.fuse_hidden*
+._*
+
+###############################
+# Vagrant .gitignore template #
+###############################
+
+.vagrant/
+
+######################
+# OS generated files #
+######################
+*.DS_Store
+*.DS_Store?
+#._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+###########################
+# C++ .gitignore template #
+###########################
+
 # Prerequisites
-*.d
+/*.d
+*/*.d
+# we can't do "*.d" because we want to include a `init.d` folder
 
 # Compiled Object files
 *.slo
