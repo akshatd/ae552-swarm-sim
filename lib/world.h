@@ -5,7 +5,7 @@
 #include <barrier>
 #include <functional>
 #include <map>
-#include <memory>
+#include <stop_token>
 #include <string>
 #include <vector>
 
@@ -21,15 +21,14 @@ class World {
 		void Stop();
 
 	private:
-		std::vector<Drone>                                   drones_;
-		Point3d                                              size_;
-		std::atomic_bool                                     running_;
-		std::map<std::string, Point3d>                       drone_control_outs_;
-		std::map<std::string, Attitude>                      drone_attitudes_;
-		std::unique_ptr<std::barrier<std::function<void()>>> control_calculated_;
+		std::vector<Drone>              drones_;
+		Point3d                         size_;
+		std::atomic_bool                running_;
+		std::map<std::string, Point3d>  drone_control_outs_;
+		std::map<std::string, Attitude> drone_attitudes_;
 
-		Point3d  getDroneControlOut(Drone &drone);
-		Attitude calculateDroneAttitude(Drone &drone);
+		void     runDrone(std::stop_token stop_token, Drone &drone, std::barrier<std::function<void()>> &sync);
+		Attitude calculateDroneAttitude(Drone &drone, Point3d control_out);
 };
 
 #endif
