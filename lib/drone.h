@@ -15,6 +15,11 @@ struct Point3d {
 		float z;
 
 		friend std::ostream& operator<<(std::ostream& os, const Point3d& point);
+		Point3d              operator+=(const Point3d& rhs);
+		Point3d              operator-=(const Point3d& rhs);
+		Point3d              operator-();
+		Point3d              operator*=(const Point3d& rhs);
+		Point3d              operator*=(const float& rhs);
 };
 
 struct Attitude {
@@ -28,6 +33,7 @@ class Drone {
 	public:
 		Drone(std::string name, Attitude attitude);
 		~Drone();
+		Attitude    getAttitude();
 		void        setAttitude(Attitude attitude);
 		Point3d     getControlOut();
 		std::string getName() const;

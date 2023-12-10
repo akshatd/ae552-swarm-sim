@@ -29,6 +29,7 @@ class World {
 
 		void     runDrone(std::stop_token stop_token, Drone &drone, std::barrier<std::function<void()>> &sync);
 		Attitude calculateDroneAttitude(Drone &drone, Point3d control_out);
+		Attitude checkBounds(Attitude attitude, Point3d size);
 };
 
 #endif

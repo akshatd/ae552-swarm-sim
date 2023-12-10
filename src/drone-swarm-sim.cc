@@ -58,8 +58,8 @@ int main(int argc, char *argv[]) {
 	try {
 		World world(drones, {10, 10, 10});
 		world.Start();
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-		world.Stop();
+		std::this_thread::sleep_for(std::chrono::seconds(50));
+		// world.Stop();
 	} catch (std::exception &e) {
 		std::cout << "*** ERROR: " << e.what() << '\n';
 		return EXIT_FAILURE;
