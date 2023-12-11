@@ -20,26 +20,18 @@ Point3d Point3d::operator-=(const Point3d& rhs) {
 	return *this;
 }
 
-Point3d Point3d::operator-() {
-	x = -x;
-	y = -y;
-	z = -z;
+Point3d Point3d::operator-=(const float& rhs) {
+	x -= rhs;
+	y -= rhs;
+	z -= rhs;
 	return *this;
 }
 
-Point3d Point3d::operator*=(const Point3d& rhs) {
-	x *= rhs.x;
-	y *= rhs.y;
-	z *= rhs.z;
-	return *this;
-}
+Point3d Point3d::operator-() { return Point3d(-x, -y, -z); }
 
-Point3d Point3d::operator*=(const float& rhs) {
-	x *= rhs;
-	y *= rhs;
-	z *= rhs;
-	return *this;
-}
+Point3d Point3d::operator*(const Point3d& rhs) { return Point3d(x * rhs.x, y * rhs.y, z * rhs.z); }
+
+Point3d Point3d::operator*(const float& rhs) { return Point3d(x * rhs, y * rhs, z * rhs); }
 
 std::ostream& operator<<(std::ostream& os, const Attitude& Attitude) {
 	os << "x: [" << Attitude.x << "], dx: [" << Attitude.dx << "]";

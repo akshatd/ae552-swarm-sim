@@ -17,9 +17,10 @@ struct Point3d {
 		friend std::ostream& operator<<(std::ostream& os, const Point3d& point);
 		Point3d              operator+=(const Point3d& rhs);
 		Point3d              operator-=(const Point3d& rhs);
+		Point3d              operator-=(const float& rhs);
 		Point3d              operator-();
-		Point3d              operator*=(const Point3d& rhs);
-		Point3d              operator*=(const float& rhs);
+		Point3d              operator*(const Point3d& rhs);
+		Point3d              operator*(const float& rhs);
 };
 
 struct Attitude {

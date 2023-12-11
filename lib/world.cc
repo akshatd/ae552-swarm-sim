@@ -67,12 +67,14 @@ void World::runDrone(std::stop_token stop_token, Drone &drone, std::barrier<std:
 }
 
 Attitude World::calculateDroneAttitude(Drone &drone, Point3d control_out) {
+	// here we assume the mass is 1
 	Attitude attitude = drone_attitudes_[drone.getName()];
 	// std::cout << "initial attitude: " << attitude << '\n';
 	// calculate attitude for drone
 	attitude.dx += control_out;
-	// std::cout << "after ctrl out attitude: " << attitude << '\n';
-	// apply physics for friction
+	std::cout << "after ctrl out attitude: " << attitude << '\n';
+	// apply drag
+	attitude = applyDrag(attitude);
 	// apply physics for gravity?
 	// apply collisions with bounds
 	attitude.x += attitude.dx;
@@ -82,6 +84,15 @@ Attitude World::calculateDroneAttitude(Drone &drone, Point3d control_out) {
 	// apply collisions with other drones
 	// calculate final position and return drone attitude
 	// std::cout << "World::calculateDroneAttitude for " << drone << ": " << attitude << '\n';
+	return attitude;
+}
+
+Attitude World::applyDrag(Attitude attitude) {
+	// assume mass is 1 and time step is 1 second
+	Point3d drag = (attitude.dx * attitude.dx) * kDrag;
+	attitude.dx.x > 0 ? attitude.dx.x -= drag.x : attitude.dx.x += drag.x;
+	attitude.dx.y > 0 ? attitude.dx.y -= drag.y : attitude.dx.y += drag.y;
+	attitude.dx.z > 0 ? attitude.dx.z -= drag.z : attitude.dx.z += drag.z;
 	return attitude;
 }
 
