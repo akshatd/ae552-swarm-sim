@@ -33,6 +33,8 @@ Point3d Point3d::operator*(const Point3d& rhs) { return Point3d(x * rhs.x, y * r
 
 Point3d Point3d::operator*(const float& rhs) { return Point3d(x * rhs, y * rhs, z * rhs); }
 
+Point3d Point3d::operator/(const float& rhs) { return Point3d(x / rhs, y / rhs, z / rhs); }
+
 std::ostream& operator<<(std::ostream& os, const Attitude& Attitude) {
 	os << "x: [" << Attitude.x << "], dx: [" << Attitude.dx << "]";
 	return os;

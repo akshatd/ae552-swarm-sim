@@ -21,6 +21,7 @@ struct Point3d {
 		Point3d              operator-();
 		Point3d              operator*(const Point3d& rhs);
 		Point3d              operator*(const float& rhs);
+		Point3d              operator/(const float& rhs);
 };
 
 struct Attitude {

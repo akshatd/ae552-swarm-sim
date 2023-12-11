@@ -71,13 +71,14 @@ Attitude World::calculateDroneAttitude(Drone &drone, Point3d control_out) {
 	Attitude attitude = drone_attitudes_[drone.getName()];
 	// std::cout << "initial attitude: " << attitude << '\n';
 	// calculate attitude for drone
-	attitude.dx += control_out;
-	std::cout << "after ctrl out attitude: " << attitude << '\n';
+	attitude.dx += control_out / kMass * kTimeStep;
+	// std::cout << "after ctrl out attitude: " << attitude << '\n';
+	// apply gravity
+	attitude = applyGravity(attitude);
 	// apply drag
 	attitude = applyDrag(attitude);
-	// apply physics for gravity?
 	// apply collisions with bounds
-	attitude.x += attitude.dx;
+	attitude.x += attitude.dx * kTimeStep;
 	// std::cout << "after adding x attitude: " << attitude << '\n';
 	attitude = checkBounds(attitude, size_);
 	// std::cout << "checking bounds attitude: " << attitude << '\n';
@@ -89,10 +90,16 @@ Attitude World::calculateDroneAttitude(Drone &drone, Point3d control_out) {
 
 Attitude World::applyDrag(Attitude attitude) {
 	// assume mass is 1 and time step is 1 second
-	Point3d drag = (attitude.dx * attitude.dx) * kDrag;
+	Point3d drag = (attitude.dx * attitude.dx) * kDrag / kMass * kTimeStep;
 	attitude.dx.x > 0 ? attitude.dx.x -= drag.x : attitude.dx.x += drag.x;
 	attitude.dx.y > 0 ? attitude.dx.y -= drag.y : attitude.dx.y += drag.y;
 	attitude.dx.z > 0 ? attitude.dx.z -= drag.z : attitude.dx.z += drag.z;
+	return attitude;
+}
+
+Attitude World::applyGravity(Attitude attitude) {
+	// assume mass is 1 and time step is 1 second
+	attitude.dx.z -= kGravity * kTimeStep;
 	return attitude;
 }
 
