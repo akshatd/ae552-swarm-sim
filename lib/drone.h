@@ -15,9 +15,9 @@ struct Point3d {
 		float z;
 
 		friend std::ostream& operator<<(std::ostream& os, const Point3d& point);
+		Point3d              operator+(const Point3d& rhs);
 		Point3d              operator+=(const Point3d& rhs);
-		Point3d              operator-=(const Point3d& rhs);
-		Point3d              operator-=(const float& rhs);
+		Point3d              operator-(const Point3d& rhs);
 		Point3d              operator-();
 		Point3d              operator*(const Point3d& rhs);
 		Point3d              operator*(const float& rhs);
@@ -30,6 +30,10 @@ struct Attitude {
 
 		friend std::ostream& operator<<(std::ostream& os, const Attitude& Attitude);
 };
+
+constexpr float Kp = 5.0;
+constexpr float Ki = 0.0;
+constexpr float Kd = -10.0;
 
 class Drone {
 	public:
@@ -45,6 +49,7 @@ class Drone {
 	private:
 		std::string name_;
 		Attitude    attitude_;
+		Attitude    attitude_prev_;
 };
 
 #endif
