@@ -11,13 +11,12 @@
 
 #include "drone.h"
 
-constexpr uint kDefaultIterLimit = 10;
-
+constexpr std::chrono::milliseconds kDefaultSleepTime(100);
 class World {
 	public:
 		World(std::vector<Drone> drones, Point3d size);
 		~World();
-		void Start(uint iter_limit = kDefaultIterLimit);
+		void Start(std::function<void(std::map<std::string, Attitude>)> callback);
 		void Stop();
 
 	private:

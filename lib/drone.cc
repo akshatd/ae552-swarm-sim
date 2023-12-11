@@ -56,7 +56,7 @@ Drone::~Drone() {}
 Attitude Drone::getAttitude() { return attitude_; }
 
 void Drone::setAttitude(Attitude attitude) {
-	std::cout << "Drone::setAttitude for " << name_ << " to " << attitude << '\n';
+	// std::cout << "Drone::setAttitude for " << name_ << " to " << attitude << '\n';
 	attitude_ = attitude;
 }
 

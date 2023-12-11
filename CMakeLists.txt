@@ -9,11 +9,7 @@ if (NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE "Debug")
 endif ()
 # https://github.com/cpp-best-practices/cppbestpractices/blob/master/02-Use_the_Tools_Available.md#gcc--clang
-# without -Wpadded because padding here is not a problem
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -pedantic -Wshadow -Wnon-virtual-dtor \
-										-Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wconversion -Wsign-conversion \
-										-Wmisleading-indentation -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wnull-dereference \
-										-Wuseless-cast -Wdouble-promotion -Wformat=2")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 
 # install deps via Conan
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR})
@@ -34,6 +30,18 @@ conan_cmake_install(PATH_OR_REFERENCE . BUILD missing PROFILE_HOST ${CONAN_HOST_
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup(TARGETS)
 
+# set up deps for matplot++
+include(FetchContent)
+FetchContent_Declare(
+				matplotplusplus
+        GIT_REPOSITORY https://github.com/alandefreitas/matplotplusplus
+        GIT_TAG origin/master)
+FetchContent_GetProperties(matplotplusplus)
+if(NOT matplotplusplus_POPULATED)
+		FetchContent_Populate(matplotplusplus)
+		add_subdirectory(${matplotplusplus_SOURCE_DIR} ${matplotplusplus_BINARY_DIR} EXCLUDE_FROM_ALL)
+endif()
+
 # setup some vars
 set(SRC_DIR src)
 set(LIB_DIR lib)
@@ -41,8 +49,13 @@ set(TEST_DIR test)
 
 # libraries
 # https://cmake.org/cmake/help/latest/command/add_library.html
+
 add_library(drone STATIC ${LIB_DIR}/drone.h ${LIB_DIR}/drone.cc)
 target_include_directories(drone PUBLIC ${LIB_DIR})
+
+add_library(ui STATIC ${LIB_DIR}/ui.h ${LIB_DIR}/ui.cc)
+target_include_directories(ui PUBLIC ${LIB_DIR})
+target_link_libraries(ui matplot)
 
 add_library(world STATIC ${LIB_DIR}/world.h ${LIB_DIR}/world.cc)
 target_include_directories(world PUBLIC ${LIB_DIR})
@@ -50,4 +63,4 @@ target_include_directories(world PUBLIC ${LIB_DIR})
 # executables
 
 add_executable(drone-swarm-sim ${SRC_DIR}/drone-swarm-sim.cc)
-target_link_libraries(drone-swarm-sim drone world CONAN_PKG::cxxopts CONAN_PKG::nlohmann_json)
+target_link_libraries(drone-swarm-sim drone ui world CONAN_PKG::cxxopts CONAN_PKG::nlohmann_json)

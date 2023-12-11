@@ -26,21 +26,24 @@ World::World(std::vector<Drone> drones, Point3d size) {
 
 World::~World() { Stop(); }
 
-void World::Start(uint iter_limit) {
+void World::Start(std::function<void(std::map<std::string, Attitude>)> callback) {
 	std::cout << "World::Start\n";
-	(void)iter_limit;
-	size_t                              num_drones = drones_.size();
-	std::barrier<std::function<void()>> sync(static_cast<long int>(num_drones), []() noexcept { return; });
+	size_t num_drones = drones_.size();
+	// +1 for main thread
+	std::barrier<std::function<void()>> sync(static_cast<long int>(num_drones + 1), []() noexcept { return; });
 
 	std::vector<std::jthread> drone_threads;
 	for (Drone &drone : drones_) {
+		std::cout << "World::runDrone for " << drone << '\n';
 		drone_threads.emplace_back(
 			[this, &drone, &sync](std::stop_token stop_token_t) { runDrone(stop_token_t, drone, sync); });
 	}
 	running_ = true;
 	std::cout << "World::Start waiting for running to end .. \n";
 	while (running_) {
-		std::this_thread::sleep_for(std::chrono::seconds(1));
+		sync.arrive_and_wait();
+		sync.arrive_and_wait();
+		callback(drone_attitudes_);
 	}
 }
 
@@ -51,7 +54,6 @@ void World::Stop() {
 
 void World::runDrone(std::stop_token stop_token, Drone &drone, std::barrier<std::function<void()>> &sync) {
 	std::string drone_name = drone.getName();
-	std::cout << "World::runDrone for " << drone << '\n';
 	while (!stop_token.stop_requested()) {
 		drone_control_outs_[drone_name] = drone.getControlOut();
 		// std::cout << "World::runDrone after drone.getControlOut\n";
@@ -60,7 +62,7 @@ void World::runDrone(std::stop_token stop_token, Drone &drone, std::barrier<std:
 		drone.setAttitude(drone_attitudes_[drone_name]);
 		// std::cout << "World::runDrone after drone.setAttitude\n";
 		sync.arrive_and_wait();
-		std::this_thread::sleep_for(std::chrono::milliseconds(200));
+		std::this_thread::sleep_for(kDefaultSleepTime);
 	}
 }
 

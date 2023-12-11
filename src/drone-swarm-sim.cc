@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "drone.h"
+#include "ui.h"
 #include "world.h"
 
 const std::string kDefaultFile = "drones.json";
@@ -55,9 +56,11 @@ int main(int argc, char *argv[]) {
 		return EXIT_FAILURE;
 	}
 
+	Point3d size({10, 10, 10});
 	try {
-		World world(drones, {10, 10, 10});
-		world.Start();
+		World world(drones, size);
+		Ui    ui(size);
+		world.Start([&ui](std::map<std::string, Attitude> update) { ui.Update(update); });
 		std::this_thread::sleep_for(std::chrono::seconds(50));
 		// world.Stop();
 	} catch (std::exception &e) {

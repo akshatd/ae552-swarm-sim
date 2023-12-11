@@ -86,6 +86,7 @@
 		"typeinfo": "cpp",
 		"valarray": "cpp",
 		"variant": "cpp",
-		"barrier": "cpp"
+		"barrier": "cpp",
+		"strstream": "cpp"
 	},
 }
