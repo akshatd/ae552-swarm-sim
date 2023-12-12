@@ -30,10 +30,12 @@ std::ostream& operator<<(std::ostream& os, const Attitude& Attitude) {
 	return os;
 }
 
-Drone::Drone(std::string name, Attitude attitude) {
+Drone::Drone(std::string name, Attitude attitude, DroneType type, std::map<std::string, Point3d> target) {
 	name_          = name;
 	attitude_      = attitude;
 	attitude_prev_ = attitude;
+	type_          = type;
+	target_        = target;
 }
 
 Drone::~Drone() {}
@@ -61,6 +63,11 @@ std::string Drone::getName() const { return name_; }
 
 // for iostream
 std::ostream& operator<<(std::ostream& os, const Drone& drone) {
-	os << drone.name_ << ": " << drone.attitude_;
+	os << drone.name_ << "(" << (drone.type_ == Leader ? "Leader" : "Follower") << "): " << drone.attitude_
+		 << ", Target: [";
+	for (const auto& t : drone.target_) {
+		os << t.first << " [" << t.second << "], ";
+	}
+	os << "]";
 	return os;
 }

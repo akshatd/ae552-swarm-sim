@@ -2,6 +2,7 @@
 #define DRONE_H
 
 #include <iostream>
+#include <map>
 #include <string>
 
 /*
@@ -35,9 +36,11 @@ constexpr float Kp = 5.0;
 constexpr float Ki = 0.0;
 constexpr float Kd = -10.0;
 
+enum DroneType { Leader, Follower };
+
 class Drone {
 	public:
-		Drone(std::string name, Attitude attitude);
+		Drone(std::string name, Attitude attitude, DroneType type, std::map<std::string, Point3d> target);
 		~Drone();
 		Attitude    getAttitude();
 		void        setAttitude(Attitude attitude);
@@ -47,9 +50,11 @@ class Drone {
 		friend std::ostream& operator<<(std::ostream& os, const Drone& drone);
 
 	private:
-		std::string name_;
-		Attitude    attitude_;
-		Attitude    attitude_prev_;
+		std::string                    name_;
+		DroneType                      type_;
+		std::map<std::string, Point3d> target_;
+		Attitude                       attitude_;
+		Attitude                       attitude_prev_;
 };
 
 #endif
