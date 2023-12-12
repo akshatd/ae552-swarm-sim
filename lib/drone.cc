@@ -1,6 +1,9 @@
 #include "drone.h"
 
 #include <iostream>
+#include <map>
+#include <vector>
+
 std::ostream& operator<<(std::ostream& os, const Point3d& point) {
 	os << point.x << ", " << point.y << ", " << point.z;
 	return os;
@@ -25,6 +28,13 @@ Point3d Point3d::operator*(const float& rhs) { return Point3d(x * rhs, y * rhs, 
 
 Point3d Point3d::operator/(const float& rhs) { return Point3d(x / rhs, y / rhs, z / rhs); }
 
+Point3d Point3d::operator/=(const float& rhs) {
+	x /= rhs;
+	y /= rhs;
+	z /= rhs;
+	return *this;
+}
+
 std::ostream& operator<<(std::ostream& os, const Attitude& Attitude) {
 	os << "x: [" << Attitude.x << "], dx: [" << Attitude.dx << "]";
 	return os;
@@ -42,15 +52,26 @@ Drone::~Drone() {}
 
 Attitude Drone::getAttitude() { return attitude_; }
 
-void Drone::setAttitude(Attitude attitude) {
+void Drone::setAttitude(Attitude attitude, std::map<std::string, Attitude> all_attitudes_prev) {
 	// std::cout << "Drone::setAttitude for " << name_ << " to " << attitude << '\n';
-	attitude_prev_ = attitude_;
-	attitude_      = attitude;
+	attitude_prev_      = attitude_;
+	attitude_           = attitude;
+	all_attitudes_prev_ = all_attitudes_prev;
 }
 
 Point3d Drone::getControlOut() {
 	// basic PID controller to stabilize drone to 0,0,0
-	Point3d target(5, 5, 5);
+	Point3d target(0, 0, 0);
+	if (type_ == Leader) {
+		target = target_[name_];
+	} else {
+		Point3d target_diff;
+		for (const auto& t : target_) {
+			target_diff = all_attitudes_prev_[t.first].x + t.second;
+			target += target_diff;
+		}
+		target /= static_cast<float>(target_.size());
+	}
 	Point3d kp_diff     = target - attitude_.x;
 	Point3d prop        = kp_diff * Kp;
 	Point3d kd_diff     = (target - attitude_prev_.x) - (target - attitude_.x);

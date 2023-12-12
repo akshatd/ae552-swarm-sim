@@ -13,13 +13,11 @@
 World::World(std::vector<Drone> drones, Point3d size) {
 	drones_ = drones;
 	size_   = size;
-	// initialise drone control outputs
-	for (Drone &drone : drones_) {
-		drone_control_outs_[drone.getName()] = Point3d({0, 0, 0});
-	}
+
 	// initialise drone attitudes
 	for (Drone &drone : drones_) {
-		drone_attitudes_[drone.getName()] = drone.getAttitude();
+		drone_attitudes_[drone.getName()]      = drone.getAttitude();
+		drone_attitudes_prev_[drone.getName()] = drone.getAttitude();
 	}
 	running_ = false;
 }
@@ -54,12 +52,14 @@ void World::Stop() {
 
 void World::runDrone(std::stop_token stop_token, Drone &drone, std::barrier<std::function<void()>> &sync) {
 	std::string drone_name = drone.getName();
+	Point3d     control_out;
 	while (!stop_token.stop_requested()) {
-		drone_control_outs_[drone_name] = drone.getControlOut();
+		drone_attitudes_prev_[drone_name] = drone_attitudes_[drone_name];
+		control_out                       = drone.getControlOut();
 		// std::cout << "World::runDrone after drone.getControlOut\n";
 		sync.arrive_and_wait();
-		drone_attitudes_[drone_name] = calculateDroneAttitude(drone, drone_control_outs_[drone_name]);
-		drone.setAttitude(drone_attitudes_[drone_name]);
+		drone_attitudes_[drone_name] = calculateDroneAttitude(drone, control_out);
+		drone.setAttitude(drone_attitudes_[drone_name], drone_attitudes_prev_);
 		// std::cout << "World::runDrone after drone.setAttitude\n";
 		sync.arrive_and_wait();
 		std::this_thread::sleep_for(kDefaultSleepTime);

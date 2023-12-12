@@ -23,6 +23,7 @@ struct Point3d {
 		Point3d              operator*(const Point3d& rhs);
 		Point3d              operator*(const float& rhs);
 		Point3d              operator/(const float& rhs);
+		Point3d              operator/=(const float& rhs);
 };
 
 struct Attitude {
@@ -43,18 +44,19 @@ class Drone {
 		Drone(std::string name, Attitude attitude, DroneType type, std::map<std::string, Point3d> target);
 		~Drone();
 		Attitude    getAttitude();
-		void        setAttitude(Attitude attitude);
+		void        setAttitude(Attitude attitude, std::map<std::string, Attitude> all_attitudes_prev);
 		Point3d     getControlOut();
 		std::string getName() const;
 
 		friend std::ostream& operator<<(std::ostream& os, const Drone& drone);
 
 	private:
-		std::string                    name_;
-		DroneType                      type_;
-		std::map<std::string, Point3d> target_;
-		Attitude                       attitude_;
-		Attitude                       attitude_prev_;
+		std::string                     name_;
+		DroneType                       type_;
+		std::map<std::string, Point3d>  target_;
+		Attitude                        attitude_;
+		Attitude                        attitude_prev_;
+		std::map<std::string, Attitude> all_attitudes_prev_;
 };
 
 #endif
