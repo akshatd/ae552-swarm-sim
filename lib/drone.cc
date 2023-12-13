@@ -5,6 +5,8 @@
 #include <numeric>
 #include <vector>
 
+#include "world.h"
+
 std::ostream& operator<<(std::ostream& os, const Point3d& point) {
 	os << point.x << ", " << point.y << ", " << point.z;
 	return os;
@@ -79,9 +81,9 @@ Point3d Drone::getControlOut() {
 				} else {
 					target_others += all_attitudes_prev_[t.first].x + t.second;
 				}
-				target_others /= static_cast<float>(target_.size() - 1);
-				target = (target_own + target_others) / 2.0f;
 			}
+			target_others /= static_cast<float>(target_.size() - 1);
+			target = (target_own + target_others) / 2.0f;
 		} break;
 		default:
 			break;
@@ -101,6 +103,8 @@ Point3d Drone::getControlOut() {
 	Point3d integral = std::reduce(error_history_.begin(), error_history_.end()) * Ki;
 
 	Point3d control_out = prop + deriv + integral;
+	// add gravity compensation in control_out
+	control_out.z += kMass * kGravity;
 	// std::cout << "Drone::getControlOut for " << name_ << ": " << control_out << '\n';
 	return control_out;
 }

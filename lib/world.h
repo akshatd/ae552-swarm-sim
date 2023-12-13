@@ -17,7 +17,7 @@ constexpr float                     kAirDensity = 1.225;                        
 constexpr float                     kCd         = 0.47;                         // for a sphere
 constexpr float                     kA          = 0.1;                          // cross sectional area, m^2
 constexpr float                     kDrag       = 0.5 * kCd * kA * kAirDensity; // this is all of 1/2 * Cd * A * rho
-constexpr float                     kGravity    = 0.81;                         // m/s^2
+constexpr float                     kGravity    = 9.81;                         // m/s^2
 constexpr float                     kMass       = 1.0;                          // kg
 constexpr float                     kTimeStep   = 0.05;                         // s
 class World {
