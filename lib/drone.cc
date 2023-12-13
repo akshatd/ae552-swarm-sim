@@ -62,16 +62,30 @@ void Drone::setAttitude(Attitude attitude, std::map<std::string, Attitude> all_a
 Point3d Drone::getControlOut() {
 	// basic PID controller to stabilize drone to 0,0,0
 	Point3d target(0, 0, 0);
-	if (type_ == CLeader) {
-		target = target_[name_];
-	} else {
-		Point3d target_diff;
-		for (const auto& t : target_) {
-			target_diff = all_attitudes_prev_[t.first].x + t.second;
-			target += target_diff;
-		}
-		target /= static_cast<float>(target_.size());
+	switch (type_) {
+		case CLeader:
+			target = target_[name_];
+			break;
+		case CFollower: {
+			// sum of where the leader was + our offset to it
+			target = all_attitudes_prev_[target_.begin()->first].x + target_.begin()->second;
+		} break;
+		case Decentralized: {
+			Point3d target_own(0, 0, 0), target_others(0, 0, 0);
+			for (const auto& t : target_) {
+				if (t.first == name_) {
+					target_own = t.second;
+				} else {
+					target_others += all_attitudes_prev_[t.first].x + t.second;
+				}
+				target_others /= static_cast<float>(target_.size() - 1);
+				target = (target_own + target_others) / 2.0f;
+			}
+		} break;
+		default:
+			break;
 	}
+	// PID to get to target
 	Point3d kp_diff     = target - attitude_.x;
 	Point3d prop        = kp_diff * Kp;
 	Point3d kd_diff     = (target - attitude_prev_.x) - (target - attitude_.x);
