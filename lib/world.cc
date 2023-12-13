@@ -19,35 +19,37 @@ World::World(std::vector<Drone> drones, Point3d size) {
 		drone_attitudes_[drone.getName()]      = drone.getAttitude();
 		drone_attitudes_prev_[drone.getName()] = drone.getAttitude();
 	}
-	running_ = false;
 }
 
-World::~World() { Stop(); }
+World::~World() {
+	world_thread_.request_stop();
+	// print final attitudes
+	std::cout << "Final attitudes:\n";
+	for (Drone &drone : drones_) {
+		std::cout << drone.getName() << ": " << drone.getAttitude() << '\n';
+	}
+}
 
 void World::Start(std::function<void(std::map<std::string, Attitude>)> callback) {
 	std::cout << "World::Start\n";
-	size_t num_drones = drones_.size();
-	// +1 for main thread
-	std::barrier<std::function<void()>> sync(static_cast<long int>(num_drones + 1), []() noexcept { return; });
+	world_thread_ = std::jthread([this, &callback](std::stop_token stop_token) {
+		size_t num_drones = drones_.size();
+		// +1 for main thread
+		std::barrier<std::function<void()>> sync(static_cast<long int>(num_drones + 1), []() noexcept { return; });
 
-	std::vector<std::jthread> drone_threads;
-	for (Drone &drone : drones_) {
-		std::cout << "World::runDrone for " << drone << '\n';
-		drone_threads.emplace_back(
-			[this, &drone, &sync](std::stop_token stop_token_t) { runDrone(stop_token_t, drone, sync); });
-	}
-	running_ = true;
-	std::cout << "World::Start waiting for running to end .. \n";
-	while (running_) {
-		sync.arrive_and_wait();
-		sync.arrive_and_wait();
-		callback(drone_attitudes_);
-	}
-}
-
-void World::Stop() {
-	std::cout << "stopping\n";
-	running_ = false;
+		std::vector<std::jthread> drone_threads;
+		for (Drone &drone : drones_) {
+			std::cout << "World::runDrone for " << drone << '\n';
+			drone_threads.emplace_back(
+				[this, &drone, &sync](std::stop_token stop_token_t) { runDrone(stop_token_t, drone, sync); });
+		}
+		while (!stop_token.stop_requested()) {
+			sync.arrive_and_wait();
+			sync.arrive_and_wait();
+			callback(drone_attitudes_);
+		}
+	});
+	std::cout << "World::Started .. \n";
 }
 
 void World::runDrone(std::stop_token stop_token, Drone &drone, std::barrier<std::function<void()>> &sync) {

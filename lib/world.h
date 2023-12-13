@@ -7,6 +7,7 @@
 #include <map>
 #include <stop_token>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include "drone.h"
@@ -24,14 +25,13 @@ class World {
 		World(std::vector<Drone> drones, Point3d size);
 		~World();
 		void Start(std::function<void(std::map<std::string, Attitude>)> callback);
-		void Stop();
 
 	private:
 		std::vector<Drone>              drones_;
 		Point3d                         size_;
-		std::atomic_bool                running_;
 		std::map<std::string, Attitude> drone_attitudes_prev_;
 		std::map<std::string, Attitude> drone_attitudes_;
+		std::jthread                    world_thread_;
 
 		void     runDrone(std::stop_token stop_token, Drone &drone, std::barrier<std::function<void()>> &sync);
 		Attitude calculateDroneAttitude(Drone &drone, Point3d control_out);

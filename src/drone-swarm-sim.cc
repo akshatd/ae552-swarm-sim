@@ -1,5 +1,7 @@
 
+#include <atomic>
 #include <chrono>
+#include <csignal>
 #include <cxxopts.hpp>
 #include <exception>
 #include <fstream>
@@ -15,11 +17,21 @@
 
 const std::string kDefaultFile = "drones.json";
 
+std::atomic_flag shutdown = false;
+
+void signal_handler(int signal) {
+	shutdown.test_and_set();
+	shutdown.notify_all();
+}
+
 int main(int argc, char *argv[]) {
+	// std::signal(SIGINT, signal_handler);
+
 	cxxopts::Options options(
 		"Drone Swarm Simulator", "A program that simulates a swarm of drones with different algoirthms.");
 	options.add_options()( //
 		"f,file", "Drone description file (json)", cxxopts::value<std::string>()->default_value(kDefaultFile))(
+		"t,time", "Simulation time (seconds)", cxxopts::value<int>()->default_value("30"))(
 		"d,debug", "Enable debugging", cxxopts::value<bool>()->default_value("false"))(
 		"h,help", "Print usage" //
 	);
@@ -32,6 +44,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	bool debug = result["debug"].as<bool>();
+	int  time  = result["time"].as<int>();
 
 	std::string drone_file(kDefaultFile);
 	if (result.count("file")) {
@@ -74,8 +87,9 @@ int main(int argc, char *argv[]) {
 		World world(drones, size);
 		Ui    ui(size);
 		world.Start([&ui](std::map<std::string, Attitude> update) { ui.Update(update); });
-		std::this_thread::sleep_for(std::chrono::seconds(50));
-		// world.Stop();
+		// shutdown.wait(false);
+		std::this_thread::sleep_for(std::chrono::seconds(time));
+		std::cout << "Stopping simulation ... \n";
 	} catch (std::exception &e) {
 		std::cout << "*** ERROR: " << e.what() << '\n';
 		return EXIT_FAILURE;
