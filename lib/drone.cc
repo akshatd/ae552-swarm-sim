@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <map>
+#include <numeric>
 #include <vector>
 
 std::ostream& operator<<(std::ostream& os, const Point3d& point) {
@@ -86,11 +87,20 @@ Point3d Drone::getControlOut() {
 			break;
 	}
 	// PID to get to target
-	Point3d kp_diff     = target - attitude_.x;
-	Point3d prop        = kp_diff * Kp;
-	Point3d kd_diff     = (target - attitude_prev_.x) - (target - attitude_.x);
-	Point3d deriv       = kd_diff * Kd;
-	Point3d control_out = prop + deriv;
+	Point3d kp_diff = target - attitude_.x;
+	Point3d prop    = kp_diff * Kp;
+
+	Point3d kd_diff = (target - attitude_prev_.x) - (target - attitude_.x);
+	Point3d deriv   = kd_diff * Kd;
+
+	error_history_.push_back(kp_diff);
+	// keep history size to kMaxHistory
+	if (error_history_.size() > kMaxHistory) {
+		error_history_.erase(error_history_.begin());
+	}
+	Point3d integral = std::reduce(error_history_.begin(), error_history_.end()) * Ki;
+
+	Point3d control_out = prop + deriv + integral;
 	// std::cout << "Drone::getControlOut for " << name_ << ": " << control_out << '\n';
 	return control_out;
 }
