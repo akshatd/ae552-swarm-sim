@@ -51,11 +51,18 @@ int main(int argc, char *argv[]) {
 			for (auto &t : drone["target"].items()) {
 				target[std::string(t.key())] = Point3d({t.value()[0], t.value()[1], t.value()[2]});
 			}
-
+			DroneType type;
+			if (drone["type"] == "leader") type = CLeader;
+			else if (drone["type"] == "follower") type = CFollower;
+			else if (drone["type"] == "decentralized") type = Decentralized;
+			else {
+				std::cout << "*** ERROR: Unknown drone type " << drone["type"] << '\n';
+				return EXIT_FAILURE;
+			}
 			drones.emplace_back(
 				std::string(drone["name"]),
-				Attitude({drone["x"][0], drone["x"][1], drone["x"][2]}, {drone["dx"][0], drone["dx"][1], drone["dx"][2]}),
-				drone["type"] == "leader" ? Leader : Follower, target);
+				Attitude({drone["x"][0], drone["x"][1], drone["x"][2]}, {drone["dx"][0], drone["dx"][1], drone["dx"][2]}), type,
+				target);
 		}
 	} else {
 		std::cout << "*** ERROR: " << drone_file << " does not exist\n";

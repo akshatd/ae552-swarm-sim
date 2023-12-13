@@ -37,8 +37,8 @@ constexpr float Kp = 5.0;
 constexpr float Ki = 0.0;
 constexpr float Kd = -10.0;
 
-enum DroneType { Leader, Follower };
-
+enum DroneType { CLeader, CFollower, Decentralized };
+constexpr std::string_view kDroneTypeNames[] = {"CLeader", "CFollower", "Decentralized"};
 class Drone {
 	public:
 		Drone(std::string name, Attitude attitude, DroneType type, std::map<std::string, Point3d> target);

@@ -62,7 +62,7 @@ void Drone::setAttitude(Attitude attitude, std::map<std::string, Attitude> all_a
 Point3d Drone::getControlOut() {
 	// basic PID controller to stabilize drone to 0,0,0
 	Point3d target(0, 0, 0);
-	if (type_ == Leader) {
+	if (type_ == CLeader) {
 		target = target_[name_];
 	} else {
 		Point3d target_diff;
@@ -84,8 +84,7 @@ std::string Drone::getName() const { return name_; }
 
 // for iostream
 std::ostream& operator<<(std::ostream& os, const Drone& drone) {
-	os << drone.name_ << "(" << (drone.type_ == Leader ? "Leader" : "Follower") << "): " << drone.attitude_
-		 << ", Target: [";
+	os << drone.name_ << "(" << kDroneTypeNames[drone.type_] << "): " << drone.attitude_ << ", Target: [";
 	for (const auto& t : drone.target_) {
 		os << t.first << " [" << t.second << "], ";
 	}
