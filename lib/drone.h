@@ -38,7 +38,7 @@ constexpr size_t kMaxHistory = 5;
 
 constexpr float Kp = 5.0;
 constexpr float Ki = 3;
-constexpr float Kd = -50.0;
+constexpr float Kd = -70.0;
 
 enum DroneType { CLeader, CFollower, Decentralized };
 constexpr std::string_view kDroneTypeNames[] = {"CLeader", "CFollower", "Decentralized"};
@@ -46,10 +46,10 @@ class Drone {
 	public:
 		Drone(std::string name, Attitude attitude, DroneType type, std::map<std::string, Point3d> target);
 		~Drone();
-		Attitude    getAttitude();
+		std::string getName() const;
+		Attitude    getAttitude() const;
 		void        setAttitude(Attitude attitude, std::map<std::string, Attitude> all_attitudes_prev);
 		Point3d     getControlOut();
-		std::string getName() const;
 
 		friend std::ostream& operator<<(std::ostream& os, const Drone& drone);
 

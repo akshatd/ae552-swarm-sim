@@ -11,6 +11,7 @@
 #include <thread>
 #include <vector>
 
+#include "csv.h"
 #include "drone.h"
 #include "ui.h"
 #include "world.h"
@@ -86,7 +87,11 @@ int main(int argc, char *argv[]) {
 	try {
 		World world(drones, size);
 		Ui    ui(size);
-		world.Start([&ui](std::map<std::string, Attitude> update) { ui.Update(update); });
+		Csv   csv(drone_file + ".csv", drones);
+		world.Start([&ui, &csv](std::map<std::string, Attitude> update) {
+			ui.Update(update);
+			csv.Write(update);
+		});
 		// shutdown.wait(false);
 		std::this_thread::sleep_for(std::chrono::seconds(time));
 		std::cout << "Stopping simulation ... \n";

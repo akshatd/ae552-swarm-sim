@@ -53,7 +53,9 @@ Drone::Drone(std::string name, Attitude attitude, DroneType type, std::map<std::
 
 Drone::~Drone() {}
 
-Attitude Drone::getAttitude() { return attitude_; }
+std::string Drone::getName() const { return name_; }
+
+Attitude Drone::getAttitude() const { return attitude_; }
 
 void Drone::setAttitude(Attitude attitude, std::map<std::string, Attitude> all_attitudes_prev) {
 	// std::cout << "Drone::setAttitude for " << name_ << " to " << attitude << '\n';
@@ -108,7 +110,6 @@ Point3d Drone::getControlOut() {
 	// std::cout << "Drone::getControlOut for " << name_ << ": " << control_out << '\n';
 	return control_out;
 }
-std::string Drone::getName() const { return name_; }
 
 // for iostream
 std::ostream& operator<<(std::ostream& os, const Drone& drone) {

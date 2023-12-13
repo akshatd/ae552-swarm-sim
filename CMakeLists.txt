@@ -60,7 +60,11 @@ target_link_libraries(ui matplot)
 add_library(world STATIC ${LIB_DIR}/world.h ${LIB_DIR}/world.cc)
 target_include_directories(world PUBLIC ${LIB_DIR})
 
+add_library(csv STATIC ${LIB_DIR}/csv.h ${LIB_DIR}/csv.cc)
+target_include_directories(csv PUBLIC ${LIB_DIR})
+
+
 # executables
 
 add_executable(drone-swarm-sim ${SRC_DIR}/drone-swarm-sim.cc)
-target_link_libraries(drone-swarm-sim drone ui world CONAN_PKG::cxxopts CONAN_PKG::nlohmann_json)
+target_link_libraries(drone-swarm-sim drone ui world csv CONAN_PKG::cxxopts CONAN_PKG::nlohmann_json)
